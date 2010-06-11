@@ -6,5 +6,6 @@ class Product
 
     enable :sync
   
+    set :partition, :app
   #add model specifc code here
 end

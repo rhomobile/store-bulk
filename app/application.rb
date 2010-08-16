@@ -14,7 +14,7 @@ class AppApplication < Rho::RhoApplication
     @@tabbar = nil
     # Important to call super _after_ you define @tabs!
     
-    SyncEngine::set_bulk_notification("/app/Settings/bulk_callback", "")
+    SyncEngine.set_notification(-1, "/app/Settings/sync_notify", '')
     super
   end
 end

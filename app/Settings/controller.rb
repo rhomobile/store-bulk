@@ -75,18 +75,39 @@ class SettingsController < Rho::RhoController
     redirect :action => :index, :query => {:msg => @msg}
   end
   
-  def bulk_callback
-    puts "bulk_callback: #{@params}"
-
-    if @params['bulk_status'] == 'start' && @params['partition'].length == 0
-        AppApplication.start_bulk_sync = Time.now
-        puts "Start time = " + AppApplication.start_bulk_sync.to_i.inspect
-        WebView.navigate (url_for :action => :wait)
-    end    
+  def sync_notify
   
-    AppApplication.end_bulk_sync = Time.now
-    AppApplication.bulk_sync_total_time = 
-      AppApplication.end_bulk_sync.to_i - AppApplication.start_bulk_sync.to_i
-    WebView.navigate Rho::RhoConfig.start_path unless @params['status'] == 'in_progress'
+    if status == "error"
+      
+      err_code = @params['error_code'].to_i
+      rho_error = Rho::RhoError.new(err_code)
+
+      @msg = @params['error_message'] if err_code == Rho::RhoError::ERR_CUSTOMSYNCSERVER
+      @msg = rho_error.message() unless @msg && @msg.length > 0   
+
+      if  rho_error.unknown_client?(@params['error_message'])
+          Rhom::Rhom.database_client_reset
+          SyncEngine.dosync
+      elsif err_code == Rho::RhoError::ERR_UNATHORIZED
+          WebView.navigate ( url_for :action => :login, :query => {:msg => "Server credentials are expired"} )                
+      end    
+      
+    elsif status == "complete"
+      WebView.navigate Rho::RhoConfig.start_path
+    elsif @params['sync_type'] == 'bulk'
+        puts "bulk_callback: #{@params}"
+
+        if @params['bulk_status'] == 'start' && @params['partition'].length == 0
+            AppApplication.start_bulk_sync = Time.now
+            puts "Start time = " + AppApplication.start_bulk_sync.to_i.inspect
+            WebView.navigate (url_for :action => :wait)
+        end    
+      
+        AppApplication.end_bulk_sync = Time.now
+        AppApplication.bulk_sync_total_time = 
+          AppApplication.end_bulk_sync.to_i - AppApplication.start_bulk_sync.to_i
+        WebView.navigate Rho::RhoConfig.start_path unless @params['status'] == 'in_progress'
+    else    
+  
   end
 end

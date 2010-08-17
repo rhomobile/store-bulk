@@ -76,7 +76,7 @@ class SettingsController < Rho::RhoController
   end
   
   def sync_notify
-  
+    status = @params['status'] ? @params['status'] : ""  
     if status == "error"
       
       err_code = @params['error_code'].to_i
@@ -107,7 +107,7 @@ class SettingsController < Rho::RhoController
         AppApplication.bulk_sync_total_time = 
           AppApplication.end_bulk_sync.to_i - AppApplication.start_bulk_sync.to_i
         WebView.navigate Rho::RhoConfig.start_path unless @params['status'] == 'in_progress'
-    else    
+    end
   
   end
 end

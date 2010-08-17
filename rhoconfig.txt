@@ -19,4 +19,4 @@ KeepTrackOfLastVisitedPage = 0
 LastVisitedPage = ''
 bulksync_state=0
 
-syncserver = 'http://localhost:9292/application'
+syncserver = 'http://184.73.159.63/application'
